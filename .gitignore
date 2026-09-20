@@ -1,0 +1,6 @@
+# This repository publishes only the standalone pipeline and its documentation.
+*
+!.gitignore
+!LICENSE
+!README.md
+!pipeline.sh
