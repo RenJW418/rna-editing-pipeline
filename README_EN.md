@@ -2,7 +2,7 @@
 
 **Language: [中文](README.md) | English**
 
-This is a standalone Bash pipeline for analyzing RNA editing in one paired-end sequencing sample against one reference sequence. Each run accepts one pair of FASTQ files and one reference sequence, then extracts the REDItools2 result at a specified target position.
+This repository contains a standalone Bash pipeline for analyzing RNA editing in one paired-end sequencing sample and an R script for read-level dinucleotide analysis at adjacent target positions. The Bash pipeline accepts one pair of FASTQ files and one reference sequence, then extracts the REDItools2 result at a specified target position. The R script further counts dinucleotide categories carried by individual reads in coordinate-sorted BAM files.
 
 ## Workflow
 
@@ -25,6 +25,8 @@ The pipeline performs the following steps:
 - SAMtools
 - Python
 - REDItools2
+- R 4.0 or newer (for dinucleotide analysis)
+- Bioconductor Rsamtools (for dinucleotide analysis)
 
 All required commands except the REDItools2 entry script must be available through the system `PATH`.
 
@@ -99,6 +101,73 @@ PYTHON_BIN=python3 \
 REDITOOLS_SCRIPT=/opt/REDItools2/src/cineca/reditools.py \
   ./pipeline.sh R1.fq.gz R2.fq.gz reference.fa 132 output sample01
 ```
+
+## Read-level dinucleotide analysis
+
+`dinucleotide_analysis.R` analyzes coordinate-sorted BAM files in a directory. It retains reads that span two adjacent reference positions at the predefined target site, maps those reference positions to read bases using each alignment's CIGAR string, and counts categories such as AA, AG, GG, and GA. CIGAR-aware extraction correctly handles soft clipping, insertions, and deletions that would otherwise shift coordinates when using only the alignment start and read length.
+
+Install Rsamtools:
+
+```r
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
+BiocManager::install("Rsamtools")
+```
+
+Basic usage:
+
+```bash
+Rscript dinucleotide_analysis.R \
+  --input-dir results/04-bowtie2 \
+  --target-start 112 \
+  --output dinucleotide_summary.csv
+```
+
+With `--target-start 112`, the default target window contains the adjacent reference positions 112 and 113. All positions are 1-based reference coordinates.
+
+Example with custom parameters:
+
+```bash
+Rscript dinucleotide_analysis.R \
+  --input-dir results/04-bowtie2 \
+  --target-start 112 \
+  --target-end 113 \
+  --categories AA,AG,GG,GA \
+  --reference ref1 \
+  --min-mapq 20 \
+  --yield-size 200000 \
+  --exclude-duplicates true \
+  --output dinucleotide_summary.csv
+```
+
+Available options:
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `--input-dir` | required | Directory containing BAM files |
+| `--target-start` | required | First reference coordinate in the adjacent target window |
+| `--target-end` | `target-start + 1` | Last reference coordinate in the target window |
+| `--output` | `<input-dir>/dinucleotide_summary.csv` | Output CSV file |
+| `--bam-pattern` | `\.bam$` | Regular expression used to select BAM filenames |
+| `--categories` | `AA,AG,GG,GA` | Included sequence categories; each must match the target-window length |
+| `--reference` | unrestricted | Analyze alignments to one reference sequence only |
+| `--min-mapq` | `0` | Minimum mapping quality |
+| `--yield-size` | `100000` | Alignments read per chunk to control memory use |
+| `--include-secondary` | `false` | Include secondary alignments |
+| `--include-supplementary` | `false` | Include supplementary alignments |
+| `--include-qcfail` | `false` | Include reads that failed vendor quality control |
+| `--exclude-duplicates` | `false` | Exclude reads marked as duplicates |
+
+The output contains one row per BAM file with:
+
+- `total_reads`: reads passing the reference, MAPQ, and alignment-flag filters;
+- `spanning_reads`: reads from which the complete target-window sequence was extracted;
+- `filtered_reads`: total reads assigned to the requested dinucleotide categories;
+- `<category>_count`: read count for each category;
+- `<category>_percent`: percentage of `filtered_reads` assigned to each category.
+
+Category percentages are left empty when `filtered_reads` is zero. Run `Rscript dinucleotide_analysis.R --help` for the complete command-line help.
 
 ## Output directory
 

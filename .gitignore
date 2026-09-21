@@ -1,7 +1,9 @@
 # This repository publishes only the standalone pipeline and its documentation.
 *
+!.gitattributes
 !.gitignore
 !LICENSE
 !README.md
 !README_EN.md
 !pipeline.sh
+!dinucleotide_analysis.R

@@ -2,7 +2,7 @@
 
 **语言：中文 | [English](README_EN.md)**
 
-这是一个用于分析单个双端测序样本 RNA 编辑情况的独立 Bash 流程。每次运行使用一对双端 FASTQ 文件和一条参考序列，并提取指定目标位点的 REDItools2 分析结果。
+本仓库包含一个用于分析单个双端测序样本 RNA 编辑情况的独立 Bash 流程，以及一个用于统计相邻靶位点双核苷酸组成的 R 脚本。Bash 流程使用一对双端 FASTQ 文件和一条参考序列，并提取指定目标位点的 REDItools2 分析结果；R 脚本进一步从坐标排序后的 BAM 文件中统计同一条 read 上的双核苷酸类型。
 
 ## 分析步骤
 
@@ -25,6 +25,8 @@
 - SAMtools
 - Python
 - REDItools2
+- R 4.0 或更高版本（运行双核苷酸分析时需要）
+- Bioconductor Rsamtools（运行双核苷酸分析时需要）
 
 除 REDItools2 主脚本外，其余命令需要能够通过系统的 `PATH` 环境变量直接调用。
 
@@ -99,6 +101,73 @@ PYTHON_BIN=python3 \
 REDITOOLS_SCRIPT=/opt/REDItools2/src/cineca/reditools.py \
   ./pipeline.sh R1.fq.gz R2.fq.gz reference.fa 132 output sample01
 ```
+
+## Read 水平双核苷酸分析
+
+`dinucleotide_analysis.R` 对一个目录中的坐标排序 BAM 文件进行逐 read 分析。脚本仅保留同时覆盖预设靶位点处两个相邻参考位置的 reads，按照 CIGAR 字符串将参考坐标映射到 read 序列，并统计 AA、AG、GG 和 GA 等双核苷酸类型。该映射方式能够正确处理软剪切、插入和缺失，避免直接根据比对起点和 read 长度截取序列造成坐标偏移。
+
+安装 Rsamtools：
+
+```r
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
+BiocManager::install("Rsamtools")
+```
+
+基本用法：
+
+```bash
+Rscript dinucleotide_analysis.R \
+  --input-dir results/04-bowtie2 \
+  --target-start 112 \
+  --output dinucleotide_summary.csv
+```
+
+`--target-start 112` 默认分析相邻的第 112 和 113 位。所有位置均为参考序列上从 1 开始的坐标。
+
+带自定义参数的示例：
+
+```bash
+Rscript dinucleotide_analysis.R \
+  --input-dir results/04-bowtie2 \
+  --target-start 112 \
+  --target-end 113 \
+  --categories AA,AG,GG,GA \
+  --reference ref1 \
+  --min-mapq 20 \
+  --yield-size 200000 \
+  --exclude-duplicates true \
+  --output dinucleotide_summary.csv
+```
+
+可用参数：
+
+| 参数 | 默认值 | 说明 |
+| --- | --- | --- |
+| `--input-dir` | 必填 | BAM 文件所在目录 |
+| `--target-start` | 必填 | 相邻靶位点的第一个参考坐标 |
+| `--target-end` | `target-start + 1` | 靶位点窗口的最后一个参考坐标 |
+| `--output` | `<input-dir>/dinucleotide_summary.csv` | 输出 CSV 文件 |
+| `--bam-pattern` | `\.bam$` | 用于筛选 BAM 文件名的正则表达式 |
+| `--categories` | `AA,AG,GG,GA` | 纳入统计的序列类型，长度必须与靶位点窗口一致 |
+| `--reference` | 不限制 | 仅统计指定参考序列上的比对 |
+| `--min-mapq` | `0` | 最低比对质量 |
+| `--yield-size` | `100000` | 每批读取的比对记录数，用于控制内存占用 |
+| `--include-secondary` | `false` | 是否纳入 secondary alignments |
+| `--include-supplementary` | `false` | 是否纳入 supplementary alignments |
+| `--include-qcfail` | `false` | 是否纳入未通过测序平台质控的 reads |
+| `--exclude-duplicates` | `false` | 是否排除被标记为 duplicate 的 reads |
+
+输出表中每个 BAM 文件对应一行，包含：
+
+- `total_reads`：通过参考序列、MAPQ 和 alignment flag 条件的 reads 数量；
+- `spanning_reads`：能够在两个靶位点提取完整序列的 reads 数量；
+- `filtered_reads`：属于指定双核苷酸类型的 reads 总数；
+- `<类型>_count`：各类型的 reads 数量；
+- `<类型>_percent`：该类型占 `filtered_reads` 的百分比。
+
+当 `filtered_reads` 为 0 时，各类型百分比留空。使用 `Rscript dinucleotide_analysis.R --help` 可查看完整帮助。
 
 ## 输出目录
 
