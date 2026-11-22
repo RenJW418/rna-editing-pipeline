@@ -1,0 +1,46 @@
+cff-version: "1.2.0"
+message: "If you use this software, please cite the archived release using the metadata in this file."
+type: software
+title: "Design and validation of ADAR-recruiting RNAs for programmable RNA editing and exon skipping in mammalian cells"
+version: "1.0.0"
+date-released: "2026-11-22"
+license: MIT
+repository-code: "https://github.com/RenJW418/rna-editing-pipeline"
+url: "https://github.com/RenJW418/rna-editing-pipeline"
+abstract: >-
+  Code accompanying the manuscript named in this record. The repository contains
+  a Bash pipeline for paired-end NGS processing and target-site RNA editing
+  analysis, and an R script for read-level dinucleotide counts at adjacent
+  reference positions. The manuscript credits Jiwu Ren with implementation of
+  the NGS analysis code. External analysis tools and sequencing data are not
+  included in this source-code archive.
+authors:
+  - given-names: Deli
+    family-names: Song
+    affiliation: "Biomedical Pioneering Innovation Center, Peking-Tsinghua Center for Life Sciences, Peking University Genome Editing Research Center, State Key Laboratory of Gene Function and Modulation Research, School of Life Sciences, Peking University, Beijing 100871, China"
+  - given-names: Gexing
+    family-names: Liu
+    affiliation: "Biomedical Pioneering Innovation Center, Peking-Tsinghua Center for Life Sciences, Peking University Genome Editing Research Center, State Key Laboratory of Gene Function and Modulation Research, School of Life Sciences, Peking University, Beijing 100871, China; Changping National Laboratory, Beijing 102206, China"
+  - given-names: Huixian
+    family-names: Tang
+    affiliation: "Biomedical Pioneering Innovation Center, Peking-Tsinghua Center for Life Sciences, Peking University Genome Editing Research Center, State Key Laboratory of Gene Function and Modulation Research, School of Life Sciences, Peking University, Beijing 100871, China"
+  - given-names: Yong
+    family-names: Shen
+    affiliation: "Biomedical Pioneering Innovation Center, Peking-Tsinghua Center for Life Sciences, Peking University Genome Editing Research Center, State Key Laboratory of Gene Function and Modulation Research, School of Life Sciences, Peking University, Beijing 100871, China"
+  - given-names: Yanglong
+    family-names: Sun
+    affiliation: "Biomedical Pioneering Innovation Center, Peking-Tsinghua Center for Life Sciences, Peking University Genome Editing Research Center, State Key Laboratory of Gene Function and Modulation Research, School of Life Sciences, Peking University, Beijing 100871, China; Changping National Laboratory, Beijing 102206, China"
+  - given-names: Jiwu
+    family-names: Ren
+    affiliation: "Biomedical Pioneering Innovation Center, Peking-Tsinghua Center for Life Sciences, Peking University Genome Editing Research Center, State Key Laboratory of Gene Function and Modulation Research, School of Life Sciences, Peking University, Beijing 100871, China; Changping National Laboratory, Beijing 102206, China"
+  - given-names: Xiwen
+    family-names: Chang
+    affiliation: "Biomedical Pioneering Innovation Center, Peking-Tsinghua Center for Life Sciences, Peking University Genome Editing Research Center, State Key Laboratory of Gene Function and Modulation Research, School of Life Sciences, Peking University, Beijing 100871, China; Changping National Laboratory, Beijing 102206, China"
+  - given-names: Wensheng
+    family-names: Wei
+    affiliation: "Biomedical Pioneering Innovation Center, Peking-Tsinghua Center for Life Sciences, Peking University Genome Editing Research Center, State Key Laboratory of Gene Function and Modulation Research, School of Life Sciences, Peking University, Beijing 100871, China; Changping National Laboratory, Beijing 102206, China"
+keywords:
+  - RNA editing
+  - next-generation sequencing
+  - bioinformatics
+  - dinucleotide analysis
