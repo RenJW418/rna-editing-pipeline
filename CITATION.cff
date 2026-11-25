@@ -1,7 +1,7 @@
 cff-version: "1.2.0"
 message: "If you use this software, please cite the archived release using the metadata in this file."
 type: software
-title: "Design and validation of ADAR-recruiting RNAs for programmable RNA editing and exon skipping in mammalian cells"
+title: "Design and validation of ADAR-recruiting RNAs for programmable RNA editing and exon skipping in mammalian cells using LEAPER"
 version: "1.0.0"
 date-released: "2026-11-22"
 license: MIT
